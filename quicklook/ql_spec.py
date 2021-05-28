@@ -5,8 +5,9 @@ import numpy as np
 import math
 import sys
 
-args=sys.argv
 
+# reading argiment parameters
+args=sys.argv
 if len(args)<2:
     print("Error: invalid number of arguments")
     print("Usage: python ql_spec.py <input file> <adc channel> <binning (option)>")
@@ -27,8 +28,8 @@ else:
 
 bin_num=int(2048/rebin)
 
+# reading fits file
 fits_file=fitsio.open(input_file)
-#fits_file.info()
 event=fits_file[1].data
 
 clock=1.0e8
@@ -38,22 +39,13 @@ if start_count>end_count:
     end_count+=2**40
 obs_time=float(end_count-start_count)/clock
 
-#print('{:.2f}'.format(obs_time))
-#exit()
-
-#print(len(fits_file[1].data))
 mask=(event["boardIndexAndChannel"]==adc_channel)
 newdata = event[mask]
 
+# plot histogram
 weights=np.ones(len(newdata["phaMax"]))/(float(rebin)*obs_time)
 plt.hist(newdata["phaMax"]-2048.0, range=(-0.5, 2047.5), bins=bin_num, histtype="step", weights=weights)
 plt.yscale('log')
 plt.xlabel("Channel")
 plt.ylabel("Spectrum (counts/ch/s)")
-
-#ax_yticklocs=plt.yaxis.get_ticklocs()
-#ax_yticklocs = list(map(lambda x: x * len(range(-3,3))*1.0/binnum, ax_yticklocs))
-#plot.yaxis.set_ticklabels(list(map(lambda x: "%0.2f" % x, ax_yticklocs)))
-
 plt.show()
-# exit()
